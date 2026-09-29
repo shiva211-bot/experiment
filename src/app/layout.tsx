@@ -1,11 +1,28 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { ToastProvider } from "@/components/ui/toast";
 import { siteConfig } from "@/lib/site-config";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: siteConfig.name,
+  title: {
+    default: siteConfig.name,
+    template: `%s — ${siteConfig.name}`,
+  },
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
   openGraph: {
@@ -17,15 +34,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body className="bg-slate-950 text-slate-100 antialiased">
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(94,231,255,0.18),_transparent_30%),linear-gradient(180deg,#020617_0%,#0f172a_100%)]">
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+      <body>
+        <ToastProvider>
           <SiteHeader />
           {children}
           <SiteFooter />
-        </div>
+        </ToastProvider>
       </body>
     </html>
   );

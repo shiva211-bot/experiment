@@ -2,31 +2,230 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   DESIGN TOKENS — Phase 2
+   ============================================================ */
 :root {
-  color-scheme: dark;
+  /* --- chassis --- */
+  --color-night: 5 8 22;
+  --color-abyss: 8 12 28;
+  --color-panel: 13 19 38;
+  --color-elevated: 20 28 52;
+  --color-line: 120 200 255;
+
+  /* --- signal: cyan --- */
+  --color-cyan: 94 231 255;
+  --color-cyan-soft: 125 249 255;
+  --color-cyan-deep: 6 182 212;
+
+  /* --- signal: holographic blue --- */
+  --color-holo: 96 165 250;
+  --color-holo-soft: 147 197 253;
+
+  /* --- signal: violet (existing) --- */
+  --color-violet: 147 108 255;
+
+  /* --- signal: emerald --- */
+  --color-emerald: 52 211 153;
+
+  /* --- text --- */
+  --color-text-primary: 241 245 249;
+  --color-text-secondary: 148 163 184;
+  --color-text-muted: 100 116 139;
+  --color-text-dim: 71 85 105;
+
+  /* --- status --- */
+  --color-danger: 248 113 113;
+  --color-warning: 251 191 36;
+  --color-success: 52 211 153;
+
+  /* --- typography --- */
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* --- radii --- */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* --- motion --- */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 400ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- glass --- */
+  --glass-bg: rgba(13, 19, 38, 0.55);
+  --glass-bg-strong: rgba(13, 19, 38, 0.78);
+  --glass-border: 1px solid rgba(120, 200, 255, 0.14);
+  --glass-blur: 14px;
+
+  /* --- glows --- */
+  --glow-cyan-sm: 0 0 12px rgba(94, 231, 255, 0.22);
+  --glow-cyan-md: 0 0 30px rgba(94, 231, 255, 0.35);
+  --glow-emerald-sm: 0 0 12px rgba(52, 211, 153, 0.22);
+
+  /* --- z-index --- */
+  --z-hud: 10;
+  --z-sticky: 100;
+  --z-overlay: 1000;
+  --z-modal: 1100;
+  --z-toast: 1200;
 }
 
-html {
-  scroll-behavior: smooth;
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: rgb(var(--color-night));
+    color: rgb(var(--color-text-primary));
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
+
+  * {
+    box-sizing: border-box;
+    border-color: rgb(var(--color-line) / 0.1);
+  }
+
+  ::selection {
+    background: rgb(var(--color-cyan) / 0.4);
+    color: rgb(var(--color-text-primary));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-cyan));
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  input,
+  textarea,
+  button,
+  select {
+    font: inherit;
+  }
 }
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #020617;
-  color: #e2e8f0;
+/* ============================================================
+   COMPONENT UTILITIES
+   ============================================================ */
+@layer components {
+  /* --- ambient background grid --- */
+  .grid-fine {
+    background-image:
+      linear-gradient(rgb(var(--color-line) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--color-line) / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+  }
+
+  /* --- controlled scanline overlay --- */
+  .scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      rgb(0 0 0 / 0.06) 3px,
+      rgb(0 0 0 / 0.06) 4px
+    );
+    mix-blend-mode: overlay;
+    z-index: var(--z-hud);
+  }
+
+  /* --- glass surface --- */
+  .glass {
+    background: var(--glass-bg);
+    border: var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    border: var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+
+  /* --- HUD corner brackets --- */
+  .hud-corners {
+    position: relative;
+  }
+  .hud-corners::before,
+  .hud-corners::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgb(var(--color-cyan) / 0.55);
+    pointer-events: none;
+  }
+  .hud-corners::before {
+    top: -1px;
+    left: -1px;
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .hud-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: 0;
+    border-top: 0;
+  }
+
+  /* --- technical label --- */
+  .label-technical {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--color-cyan) / 0.75);
+  }
+
+  /* --- text glow --- */
+  .text-glow {
+    text-shadow: 0 0 18px rgb(var(--color-cyan) / 0.35);
+  }
+
+  /* --- legacy glow alias (existing components may use `shadow-glow`) --- */
+  .shadow-glow {
+    box-shadow: var(--glow-cyan-md);
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-::selection {
-  background: rgba(94, 231, 255, 0.4);
-}
-
-input,
-textarea,
-button {
-  font: inherit;
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
